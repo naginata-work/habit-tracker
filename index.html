@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habit Tracker / 習慣トラッカー</title>
+<meta name="description" content="続けたい習慣を記録して、継続日数(ストリーク)を可視化するシンプルなトラッカー。">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4214020669195548"
+     crossorigin="anonymous"></script>
+<style>
+  :root {
+    --bg: #101512; --card: #1a231d; --text: #f1f7f3; --sub: #93a89c;
+    --accent: #4ade80; --accent2: #fb923c; --border: #26332c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: "Hiragino Kaku Gothic ProN", "Segoe UI", Arial, sans-serif;
+    background: var(--bg); color: var(--text); padding: 16px;
+  }
+  .wrap { max-width: 480px; margin: 0 auto; }
+  .top-row { display: flex; justify-content: flex-end; margin-bottom: 4px; }
+  .lang-btn { background: none; border: 1px solid var(--border); color: var(--sub); border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; }
+  h1 { font-size: 21px; text-align: center; margin: 4px 0 4px; }
+  .lead { text-align: center; color: var(--sub); font-size: 13px; margin-bottom: 18px; line-height: 1.6; }
+  .habit-row {
+    display: flex; align-items: center; gap: 10px; background: var(--card);
+    border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px;
+  }
+  .habit-row .check {
+    width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--accent);
+    background: none; cursor: pointer; flex-shrink: 0; color: var(--accent); font-size: 16px;
+  }
+  .habit-row .check.done { background: var(--accent); color: #06210f; }
+  .habit-row .info { flex: 1; }
+  .habit-row .name { font-size: 15px; font-weight: bold; }
+  .habit-row .streak { font-size: 12px; color: var(--accent2); margin-top: 2px; }
+  .habit-row .remove { background: none; border: none; color: var(--sub); font-size: 16px; cursor: pointer; }
+  .add-card { display: flex; gap: 8px; margin-top: 6px; margin-bottom: 14px; }
+  .add-card input { flex: 1; padding: 10px; font-size: 14px; border: 1px solid var(--border); border-radius: 8px; background: #131a15; color: var(--text); }
+  .add-card button { padding: 10px 16px; border: none; border-radius: 8px; background: var(--accent); color: #06210f; font-weight: bold; cursor: pointer; }
+  .copy-btn { width: 100%; padding: 11px; border: 1px solid var(--border); border-radius: 10px; font-size: 13.5px; cursor: pointer; background: none; color: var(--text); margin-top: 4px; }
+  .empty-msg { text-align: center; color: var(--sub); font-size: 13px; margin: 20px 0; }
+  .footer-links { text-align: center; font-size: 12px; color: var(--sub); margin-top: 12px; line-height: 1.8; }
+  .footer-links a { color: var(--accent2); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top-row"><button class="lang-btn" id="langBtn">EN</button></div>
+  <h1 id="title">🔥 習慣トラッカー</h1>
+  <p class="lead" id="lead">続けたい習慣を記録して、継続日数を可視化します。</p>
+
+  <div id="habitsContainer"></div>
+  <div class="empty-msg" id="emptyMsg" style="display:none;"></div>
+
+  <div class="add-card">
+    <input type="text" id="habitInput" placeholder="">
+    <button id="addBtn"></button>
+  </div>
+
+  <button class="copy-btn" id="copyBtn"></button>
+
+  <p class="footer-links" id="footerLinks"></p>
+</div>
+
+<script>
+  const I18N = {
+    ja: {
+      title: '🔥 習慣トラッカー',
+      lead: '続けたい習慣を記録して、継続日数を可視化します。',
+      placeholder: '例: 読書、ストレッチ、日記...',
+      addBtn: '追加',
+      streakLabel: n => n === 0 ? '継続日数: 0日' : `🔥 継続${n}日`,
+      emptyMsg: '習慣を1つ追加して、今日から記録を始めましょう。',
+      copyBtn: '結果をコピー',
+      copied: 'コピーしました!',
+      footerLinks: '他のツールも作っています → <a href="https://naginata-work.github.io/focus-timer/" target="_blank" rel="noopener">集中タイマー</a> / <a href="https://naginata-work.github.io/countdown/" target="_blank" rel="noopener">カウントダウン</a>'
+    },
+    en: {
+      title: '🔥 Habit Tracker',
+      lead: 'Track any habit you want to keep up, and watch your streak grow.',
+      placeholder: 'e.g. Reading, stretching, journaling...',
+      addBtn: 'Add',
+      streakLabel: n => n === 0 ? 'Streak: 0 days' : `🔥 ${n}-day streak`,
+      emptyMsg: 'Add a habit to start tracking from today.',
+      copyBtn: 'Copy result',
+      copied: 'Copied!',
+      footerLinks: 'Also made these → <a href="https://naginata-work.github.io/focus-timer/" target="_blank" rel="noopener">Focus Timer</a> / <a href="https://naginata-work.github.io/countdown/" target="_blank" rel="noopener">Countdown Timer</a>'
+    }
+  };
+
+  function loadLang() { try { return localStorage.getItem('habitTrackerLang'); } catch (e) { return null; } }
+  function saveLang(l) { try { localStorage.setItem('habitTrackerLang', l); } catch (e) {} }
+  let lang = loadLang() === 'en' ? 'en' : 'ja';
+  function t() { return I18N[lang]; }
+
+  function dateKey(d) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+  const todayKey = dateKey(new Date());
+
+  function loadHabits() {
+    try { return JSON.parse(localStorage.getItem('habitTrackerData') || '[]'); } catch (e) { return []; }
+  }
+  function saveHabits(habits) {
+    try { localStorage.setItem('habitTrackerData', JSON.stringify(habits)); } catch (e) {}
+  }
+
+  let habits = loadHabits();
+
+  function calcStreak(dates) {
+    let streak = 0;
+    let d = new Date();
+    if (!dates[dateKey(d)]) d.setDate(d.getDate() - 1);
+    while (dates[dateKey(d)]) {
+      streak++;
+      d.setDate(d.getDate() - 1);
+    }
+    return streak;
+  }
+
+  function render() {
+    const container = document.getElementById('habitsContainer');
+    container.innerHTML = '';
+    document.getElementById('emptyMsg').style.display = habits.length === 0 ? 'block' : 'none';
+    document.getElementById('emptyMsg').textContent = t().emptyMsg;
+
+    habits.forEach((habit, idx) => {
+      const done = !!habit.dates[todayKey];
+      const streak = calcStreak(habit.dates);
+      const row = document.createElement('div');
+      row.className = 'habit-row';
+      row.innerHTML = `
+        <button class="check ${done ? 'done' : ''}">${done ? '✓' : ''}</button>
+        <div class="info">
+          <div class="name">${habit.name}</div>
+          <div class="streak">${t().streakLabel(streak)}</div>
+        </div>
+        <button class="remove">×</button>`;
+      row.querySelector('.check').addEventListener('click', () => {
+        habit.dates[todayKey] = !habit.dates[todayKey];
+        if (!habit.dates[todayKey]) delete habit.dates[todayKey];
+        saveHabits(habits);
+        render();
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        habits.splice(idx, 1);
+        saveHabits(habits);
+        render();
+      });
+      container.appendChild(row);
+    });
+  }
+
+  document.getElementById('addBtn').addEventListener('click', () => {
+    const input = document.getElementById('habitInput');
+    const name = input.value.trim();
+    if (!name) return;
+    habits.push({ name, dates: {} });
+    saveHabits(habits);
+    input.value = '';
+    render();
+  });
+
+  document.getElementById('copyBtn').addEventListener('click', async () => {
+    if (habits.length === 0) return;
+    const text = habits.map(h => `${h.name}: ${t().streakLabel(calcStreak(h.dates))}`).join('\n') + '\n' + location.href;
+    try {
+      await navigator.clipboard.writeText(text);
+      const btn = document.getElementById('copyBtn');
+      const original = btn.textContent;
+      btn.textContent = t().copied;
+      setTimeout(() => { btn.textContent = original; }, 1500);
+    } catch { alert(text); }
+  });
+
+  function renderStaticText() {
+    document.getElementById('title').textContent = t().title;
+    document.getElementById('lead').textContent = t().lead;
+    document.getElementById('habitInput').placeholder = t().placeholder;
+    document.getElementById('addBtn').textContent = t().addBtn;
+    document.getElementById('copyBtn').textContent = t().copyBtn;
+    document.getElementById('footerLinks').innerHTML = t().footerLinks;
+    render();
+  }
+
+  document.getElementById('langBtn').addEventListener('click', () => {
+    lang = lang === 'ja' ? 'en' : 'ja';
+    saveLang(lang);
+    document.getElementById('langBtn').textContent = lang === 'ja' ? 'EN' : 'JA';
+    renderStaticText();
+  });
+
+  document.getElementById('langBtn').textContent = lang === 'ja' ? 'EN' : 'JA';
+  renderStaticText();
+</script>
+</body>
+</html>
