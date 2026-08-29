@@ -61,7 +61,25 @@
 
   <button class="copy-btn" id="copyBtn"></button>
 
+  <div class="card" style="font-size:13px; line-height:1.9; color:var(--sub);">
+    <h2 id="aboutTitle" style="font-size:15px; color:var(--text); margin:0 0 8px;"></h2>
+    <p id="aboutBody1" style="margin:0 0 10px;"></p>
+    <p id="aboutBody2" style="margin:0;"></p>
+  </div>
+
+  <div class="card" style="font-size:13px; line-height:1.9; color:var(--sub);">
+    <h2 id="faqTitle" style="font-size:15px; color:var(--text); margin:0 0 10px;"></h2>
+    <p id="faq1Q" style="margin:0 0 4px; color:var(--text); font-weight:bold;"></p>
+    <p id="faq1A" style="margin:0 0 12px;"></p>
+    <p id="faq2Q" style="margin:0 0 4px; color:var(--text); font-weight:bold;"></p>
+    <p id="faq2A" style="margin:0;"></p>
+  </div>
+
   <p class="footer-links" id="footerLinks"></p>
+  <p style="text-align:center; font-size:11px; color:var(--sub); margin-top:4px;">
+    <a href="https://naginata-work.github.io/" style="color:var(--sub);" id="allToolsLink"></a> ・
+    <a href="https://naginata-work.github.io/privacy.html" style="color:var(--sub);" id="privacyLink"></a>
+  </p>
 </div>
 
 <script>
@@ -75,7 +93,15 @@
       emptyMsg: '習慣を1つ追加して、今日から記録を始めましょう。',
       copyBtn: '結果をコピー',
       copied: 'コピーしました!',
-      footerLinks: '他のツールも作っています → <a href="https://naginata-work.github.io/focus-timer/" target="_blank" rel="noopener">集中タイマー</a> / <a href="https://naginata-work.github.io/countdown/" target="_blank" rel="noopener">カウントダウン</a>'
+      footerLinks: '他のツールも作っています → <a href="https://naginata-work.github.io/focus-timer/" target="_blank" rel="noopener">集中タイマー</a> / <a href="https://naginata-work.github.io/countdown/" target="_blank" rel="noopener">カウントダウン</a>',
+      aboutTitle: '継続日数(ストリーク)について',
+      aboutBody1: '読書、ストレッチ、日記、語学学習など、「続けたいけれど三日坊主になりがち」な習慣は誰にでもあります。行動科学の分野では、記録をつけて「継続日数」を可視化するだけでも、行動が続きやすくなることが知られています。',
+      aboutBody2: '習慣を登録すると、今日実施したかどうかを丸ボタンで記録できます。継続日数は「今日まで何日連続で実施したか」を自動計算し、まだ今日の分を記録していない場合でも、前日までの連続記録は維持されたまま表示されます。',
+      faqTitle: 'よくある質問',
+      faq1Q: '1日サボってしまったら、継続日数はどうなる?',
+      faq1A: 'その日が未実施のままだと、そこで連続記録は途切れ、次に実施した日から新しく1日目としてカウントが始まります。',
+      faq2Q: '健康関連の習慣専用のツールですか?',
+      faq2A: 'いいえ、特定のジャンルに限定していません。読書・勉強・趣味・仕事の習慣など、「毎日続けたいこと」であれば何でも登録して使えます。',
     },
     en: {
       title: '🔥 Habit Tracker',
@@ -86,7 +112,15 @@
       emptyMsg: 'Add a habit to start tracking from today.',
       copyBtn: 'Copy result',
       copied: 'Copied!',
-      footerLinks: 'Also made these → <a href="https://naginata-work.github.io/focus-timer/" target="_blank" rel="noopener">Focus Timer</a> / <a href="https://naginata-work.github.io/countdown/" target="_blank" rel="noopener">Countdown Timer</a>'
+      footerLinks: 'Also made these → <a href="https://naginata-work.github.io/focus-timer/" target="_blank" rel="noopener">Focus Timer</a> / <a href="https://naginata-work.github.io/countdown/" target="_blank" rel="noopener">Countdown Timer</a>',
+      aboutTitle: 'About streaks',
+      aboutBody1: "Reading, stretching, journaling, learning a language — most people have something they want to keep up but keep dropping after a few days. Behavioral research consistently shows that simply tracking a streak makes a habit easier to stick with.",
+      aboutBody2: "Add a habit, then tap the circle to mark it done for the day. Your streak is calculated as how many days in a row you've kept it up — if you haven't logged today yet, it still shows your streak through yesterday rather than resetting early.",
+      faqTitle: 'FAQ',
+      faq1Q: 'What happens to my streak if I miss a day?',
+      faq1A: "If a day passes without being marked done, the streak breaks there, and the next day you check it off starts a new count from day one.",
+      faq2Q: 'Is this only for health-related habits?',
+      faq2A: "No, it's not limited to any category. Reading, studying, hobbies, work routines — anything you want to do daily can be tracked here.",
     }
   };
 
@@ -182,6 +216,18 @@
     document.getElementById('addBtn').textContent = t().addBtn;
     document.getElementById('copyBtn').textContent = t().copyBtn;
     document.getElementById('footerLinks').innerHTML = t().footerLinks;
+    document.getElementById('aboutTitle').textContent = t().aboutTitle;
+    document.getElementById('aboutBody1').textContent = t().aboutBody1;
+    document.getElementById('aboutBody2').textContent = t().aboutBody2;
+    document.getElementById('faqTitle').textContent = t().faqTitle;
+    document.getElementById('faq1Q').textContent = t().faq1Q;
+    document.getElementById('faq1A').textContent = t().faq1A;
+    document.getElementById('faq2Q').textContent = t().faq2Q;
+    document.getElementById('faq2A').textContent = t().faq2A;
+    document.getElementById('allToolsLink').textContent = lang === 'ja' ? '他のツール一覧' : 'All tools';
+    document.getElementById('allToolsLink').href = 'https://naginata-work.github.io/';
+    document.getElementById('privacyLink').textContent = lang === 'ja' ? 'プライバシーポリシー' : 'Privacy policy';
+    document.getElementById('privacyLink').href = 'https://naginata-work.github.io/privacy.html';
     render();
   }
 
